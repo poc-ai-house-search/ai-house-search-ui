@@ -8,9 +8,10 @@ import {
   InputAdornment,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import axios from "axios";
 
 interface SearchComponentProps {
-  onSearch: (query: string) => void;
+  onSearch: (result: any) => void;
   placeholder?: string;
   title?: string;
 }
@@ -21,9 +22,19 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   title = "物件を検索",
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
-    onSearch(searchQuery);
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setLoading(true);
+    try {
+      const res = await axios.post("/api/endpoint", { query: searchQuery });
+      onSearch(res.data);
+    } catch (err) {
+      onSearch({ error: "エラーが発生しました" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -38,8 +49,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       sx={{
         p: 3,
         width: "100%",
-        maxWidth: "100%", // 左側エリアに合わせて幅を調整
-        mb: 0, // マージンボトムを削除（親で制御）
+        maxWidth: "100%",
+        mb: 0,
       }}
     >
       <Typography
@@ -52,7 +63,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       >
         {title}
       </Typography>
-      
       <Box
         sx={{
           display: "flex",
@@ -81,12 +91,11 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
             },
           }}
         />
-        
         <Button
           variant="contained"
           size="large"
           onClick={handleSearch}
-          disabled={!searchQuery.trim()}
+          disabled={!searchQuery.trim() || loading}
           sx={{
             px: 4,
             py: 1.5,
@@ -94,7 +103,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
             fontWeight: "bold",
           }}
         >
-          検索
+          {loading ? "送信中..." : "検索"}
         </Button>
       </Box>
     </Paper>

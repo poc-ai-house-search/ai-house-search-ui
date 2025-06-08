@@ -20,45 +20,10 @@ const Home: React.FC = () => {
     const mockResults: PropertyResult[] = [
       {
         id: 1,
-        title: `${query}周辺のマンション A`,
-        description: "築5年、駅徒歩3分の好立地マンションです。",
-        price: "15万円/月",
-        location: "東京都渋谷区"
-      },
-      {
-        id: 2,
-        title: `${query}エリアのアパート B`,
-        description: "リノベーション済み、設備充実のアパートです。",
-        price: "12万円/月",
-        location: "東京都新宿区"
-      },
-      {
-        id: 3,
-        title: `${query}近くの一戸建て C`,
-        description: "庭付き一戸建て、ファミリー向けです。",
-        price: "25万円/月",
-        location: "東京都世田谷区"
-      },
-      {
-        id: 4,
-        title: `${query}付近のマンション D`,
-        description: "新築、オートロック完備のセキュリティマンション。",
-        price: "18万円/月",
-        location: "東京都港区"
-      },
-      {
-        id: 5,
-        title: `${query}エリアのデザイナーズ E`,
-        description: "デザイナーズアパート、おしゃれな内装です。",
-        price: "14万円/月",
-        location: "東京都目黒区"
-      },
-      {
-        id: 6,
-        title: `${query}周辺のファミリー向け F`,
-        description: "3LDK、子育て世帯におすすめの物件です。",
-        price: "22万円/月",
-        location: "東京都品川区"
+        title: `${query}の結果`,
+        description: "結果",
+        price: "結果",
+        location: "結果"
       }
     ];
     
