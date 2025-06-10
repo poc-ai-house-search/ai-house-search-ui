@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, Grid, Card, CardContent } from "@mui/material";
+import { Box, Typography, Card, CardContent } from "@mui/material";
 import SearchComponent from "../components/SearchComponent";
 
 interface PropertyResult {
