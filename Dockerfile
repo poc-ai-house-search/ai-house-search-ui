@@ -10,6 +10,6 @@ RUN npm run build
 FROM node:20-slim
 WORKDIR /app
 RUN npm install -g serve
-COPY --from=build /app/build ./build
+COPY --from=build /app/dist ./build
 EXPOSE 8080
 CMD ["serve", "-s", "build", "-l", "8080"]
