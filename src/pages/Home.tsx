@@ -82,10 +82,8 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleSearch = (searchQuery: string) => {
-    setQuery(searchQuery);
-    console.log("検索クエリ:", searchQuery);
-  };
+  // handleSearch関数は現在未使用のため削除
+  // 将来的にSearchComponentを使用する場合は復活させてください
 
   return (
     <Box
@@ -114,7 +112,7 @@ const Home: React.FC = () => {
             </Typography>
             
             <TextField
-              label="解析するURL（クエリ）"
+              label="解析する不動産URL"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               fullWidth
