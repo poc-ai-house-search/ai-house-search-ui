@@ -31,7 +31,7 @@ jobs:
       - name: Build
         run: |
           docker build \
-            --build-arg REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }} \
+            --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
             -t asia-northeast1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/ai-frontend/front-image:${{ env.TAG }} .
 
       - name: Push

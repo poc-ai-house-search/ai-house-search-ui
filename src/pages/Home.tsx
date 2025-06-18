@@ -35,7 +35,7 @@ const Home: React.FC = () => {
     setApiResponse(null);
 
     // 環境変数からAPIベースURLを取得
-    const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'https://ai-backend-464341659510.asia-northeast1.run.app';
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://ai-backend-464341659510.asia-northeast1.run.app';
     const apiEndpoint = `${apiBaseUrl}/api/analyze`;
 
     console.log('API Endpoint:', apiEndpoint); // デバッグ用ログ
@@ -84,6 +84,7 @@ const Home: React.FC = () => {
 
   const handleSearch = (searchQuery: string) => {
     setQuery(searchQuery);
+    console.log("検索クエリ:", searchQuery);
   };
 
   return (
@@ -113,13 +114,13 @@ const Home: React.FC = () => {
             </Typography>
             
             <TextField
-              label="解析する不動産URL"
+              label="解析するURL（クエリ）"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               fullWidth
               multiline
               rows={2}
-              placeholder="https://www.mec-h.com/"
+              placeholder="https://www.homes.co.jp/archive/b-9800554/"
               sx={{ mb: 2 }}
               disabled={loading}
             />
