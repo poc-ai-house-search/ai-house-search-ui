@@ -1,24 +1,83 @@
 import React, { useState } from "react";
-import { Box, Typography, Card, CardContent, Button, TextField, CircularProgress, Alert } from "@mui/material";
+import { 
+  Box, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Button, 
+  TextField, 
+  CircularProgress, 
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  Rating
+} from "@mui/material";
+import {
+  Home as HomeIcon,
+  Build,
+  Star,
+  Train,
+  CheckCircle,
+  Warning
+} from "@mui/icons-material";
 import axios from "axios";
 
-interface PropertyResult {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  location: string;
+interface BasicInfo {
+  property_name: string | null;
+  address: string;
+  room_number: string | null;
+  rent: string;
+  management_fee: string | null;
+  deposit: string;
+  key_money: string;
+  area: string;
+  layout: string;
+  building_age: string;
+  floor: string;
+  direction: string | null;
+  building_type: string;
+}
+
+interface Station {
+  line: string;
+  station: string;
+  walking_time: string;
+}
+
+interface Analysis {
+  basic_info: BasicInfo;
+  features: {
+    amenities: string[];
+    equipment: string[];
+    special_features: string[];
+  };
+  location: {
+    nearest_stations: Station[];
+    surrounding_environment: string | null;
+  };
+  evaluation: {
+    advantages: string[];
+    disadvantages: string[];
+    overall_rating: number;
+    recommendation_score: string;
+    summary: string;
+  };
 }
 
 interface ApiResponse {
-  // APIレスポンスの型定義（実際のレスポンス構造に合わせて調整してください）
-  result?: any;
-  data?: any;
+  uuid: string;
+  query: string;
+  analysis: Analysis;
   [key: string]: any;
 }
 
 const Home: React.FC = () => {
-  const [searchResults, setSearchResults] = useState<PropertyResult[]>([]);
   const [query, setQuery] = useState("");
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,11 +93,8 @@ const Home: React.FC = () => {
     setError(null);
     setApiResponse(null);
 
-    // 環境変数からAPIベースURLを取得
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://ai-backend-464341659510.asia-northeast1.run.app';
     const apiEndpoint = `${apiBaseUrl}/api/analyze`;
-
-    console.log('API Endpoint:', apiEndpoint); // デバッグ用ログ
 
     try {
       const response = await axios.post(
@@ -51,25 +107,13 @@ const Home: React.FC = () => {
         {
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
-          timeout: 30000, // 30秒のタイムアウト
+          timeout: 30000,
         }
       );
 
       setApiResponse(response.data);
-      
-      // APIレスポンスから検索結果を生成（実際のAPIレスポンス構造に合わせて調整）
-      const mockResults: PropertyResult[] = [
-        {
-          id: 1,
-          title: `解析結果: ${query}`,
-          description: "API解析完了",
-          price: "解析データ",
-          location: "結果表示"
-        }
-      ];
-      
-      setSearchResults(mockResults);
     } catch (err: any) {
       console.error("API呼び出しエラー:", err);
       setError(
@@ -82,8 +126,210 @@ const Home: React.FC = () => {
     }
   };
 
-  // handleSearch関数は現在未使用のため削除
-  // 将来的にSearchComponentを使用する場合は復活させてください
+  const formatPrice = (price: string | null) => {
+    if (!price) return "－";
+    const num = parseInt(price);
+    return `¥${num.toLocaleString()}`;
+  };
+
+  // 基本情報コンポーネント
+  const PropertyBasicInfo = ({ basicInfo }: { basicInfo: BasicInfo }) => (
+    <Card sx={{ mb: 3 }}>
+      <CardContent>
+        <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+          <HomeIcon color="primary" />
+          基本情報
+        </Typography>
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableBody>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", width: "120px", bgcolor: "#f8f9fa" }}>住所</TableCell>
+                <TableCell>{basicInfo.address}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>賃料</TableCell>
+                <TableCell sx={{ color: "error.main", fontWeight: "bold", fontSize: "1.2em" }}>
+                  {formatPrice(basicInfo.rent)}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>敷金</TableCell>
+                <TableCell>{formatPrice(basicInfo.deposit)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>礼金</TableCell>
+                <TableCell>{formatPrice(basicInfo.key_money)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>間取り</TableCell>
+                <TableCell>{basicInfo.layout}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>専有面積</TableCell>
+                <TableCell>{basicInfo.area}m²</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>築年数</TableCell>
+                <TableCell>{basicInfo.building_age}年</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>階数</TableCell>
+                <TableCell>{basicInfo.floor}階</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>建物種別</TableCell>
+                <TableCell>{basicInfo.building_type}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
+  );
+
+  // アクセス情報コンポーネント
+  const LocationInfo = ({ location }: { location: Analysis['location'] }) => (
+    <Card sx={{ mb: 3 }}>
+      <CardContent>
+        <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+          <Train color="primary" />
+          アクセス情報
+        </Typography>
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>路線</TableCell>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>駅名</TableCell>
+                <TableCell sx={{ fontWeight: "bold", bgcolor: "#f8f9fa" }}>徒歩</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {location.nearest_stations.map((station, index) => (
+                <TableRow key={index}>
+                  <TableCell>{station.line}</TableCell>
+                  <TableCell>{station.station}</TableCell>
+                  <TableCell>{station.walking_time}分</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
+  );
+
+  // 設備・特徴コンポーネント
+  const FeatureInfo = ({ features }: { features: Analysis['features'] }) => (
+    <Card sx={{ mb: 3 }}>
+      <CardContent>
+        <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+          <Build color="primary" />
+          設備・特徴
+        </Typography>
+        
+        {features.amenities.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#1976d2" }}>
+              設備・アメニティ
+            </Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {features.amenities.map((amenity, index) => (
+                <Chip 
+                  key={index} 
+                  label={amenity} 
+                  size="small" 
+                  color="primary" 
+                  variant="outlined"
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {features.special_features.length > 0 && (
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#7b1fa2" }}>
+              特別な特徴
+            </Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {features.special_features.map((feature, index) => (
+                <Chip 
+                  key={index} 
+                  label={feature} 
+                  size="small" 
+                  color="secondary" 
+                  variant="outlined"
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  // 総合評価コンポーネント
+  const EvaluationInfo = ({ evaluation }: { evaluation: Analysis['evaluation'] }) => (
+    <Card sx={{ mb: 3 }}>
+      <CardContent>
+        <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+          <Star color="primary" />
+          総合評価
+        </Typography>
+        
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>総合評価</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Rating value={evaluation.overall_rating} readOnly size="large" />
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
+              {evaluation.recommendation_score}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+          総評
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2, p: 1.5, bgcolor: "grey.50", borderRadius: 1, lineHeight: 1.6 }}>
+          {evaluation.summary}
+        </Typography>
+
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1, color: "#4caf50" }}>
+              <CheckCircle color="success" fontSize="small" />
+              メリット
+            </Typography>
+            <Box>
+              {evaluation.advantages.map((advantage, index) => (
+                <Typography key={index} variant="body2" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
+                  <Box component="span" sx={{ color: "success.main", fontWeight: "bold", mt: 0.2 }}>✓</Box>
+                  <Box>{advantage}</Box>
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+          
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1, color: "#ff9800" }}>
+              <Warning color="warning" fontSize="small" />
+              デメリット
+            </Typography>
+            <Box>
+              {evaluation.disadvantages.map((disadvantage, index) => (
+                <Typography key={index} variant="body2" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
+                  <Box component="span" sx={{ color: "warning.main", fontWeight: "bold", mt: 0.2 }}>⚠</Box>
+                  <Box>{disadvantage}</Box>
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <Box
@@ -94,18 +340,17 @@ const Home: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      {/* メインコンテンツエリア */}
       <Box sx={{ flex: 1, display: "flex" }}>
         {/* 左側：検索エリア */}
         <Box
           sx={{
-            width: "50%",
+            width: "35%",
             borderRight: "1px solid #e0e0e0",
             display: "flex",
             flexDirection: "column",
+            bgcolor: "white"
           }}
         >
-          {/* API呼び出しエリア */}
           <Box sx={{ p: 3, borderBottom: "1px solid #e0e0e0" }}>
             <Typography variant="h6" sx={{ mb: 2, color: "#1976d2", fontWeight: "bold" }}>
               物件解析API
@@ -117,8 +362,8 @@ const Home: React.FC = () => {
               onChange={(e) => setQuery(e.target.value)}
               fullWidth
               multiline
-              rows={2}
-              placeholder="https://www.homes.co.jp/archive/b-9800554/"
+              rows={3}
+              placeholder="https://suumo.jp/chintai/jnc_000098936980/"
               sx={{ mb: 2 }}
               disabled={loading}
             />
@@ -151,197 +396,12 @@ const Home: React.FC = () => {
               </Alert>
             )}
           </Box>
-          
-          {/* 左側上部：検索結果エリア */}
-          <Box
-            sx={{
-              height: "50%",
-              borderBottom: "1px solid #e0e0e0",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              sx={{
-                p: 2,
-                borderBottom: "1px solid #e0e0e0",
-                backgroundColor: "#f8f9fa",
-              }}
-            >
-              <Typography variant="h6" sx={{ color: "#1976d2", fontWeight: "bold" }}>
-                検索結果 1
-              </Typography>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                API解析結果の1番目がここに表示されます
-              </Typography>
-            </Box>
-            
-            <Box
-              sx={{
-                flex: 1,
-                overflow: "auto",
-                p: 2,
-                backgroundColor: "#ffffff",
-              }}
-            >
-              {searchResults.length > 0 ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {searchResults.slice(0, Math.ceil(searchResults.length / 4)).map((result) => (
-                    <Card 
-                      key={result.id} 
-                      sx={{ 
-                        border: "1px solid #e0e0e0",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                        "&:hover": {
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
-                          transform: "translateY(-1px)",
-                          transition: "all 0.2s ease-in-out"
-                        }
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 1, color: "#1976d2" }}>
-                          {result.title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1, color: "text.secondary" }}>
-                          {result.description}
-                        </Typography>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                            📍 {result.location}
-                          </Typography>
-                          <Typography variant="h6" sx={{ color: "#d32f2f", fontWeight: "bold" }}>
-                            {result.price}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px dashed #e0e0e0",
-                    borderRadius: 2,
-                    backgroundColor: "#fafafa",
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "text.secondary",
-                      textAlign: "center",
-                    }}
-                  >
-                    API解析結果がここに表示されます
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-          </Box>
-
-          {/* 左側下部：検索結果エリア */}
-          <Box
-            sx={{
-              height: "50%",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              sx={{
-                p: 2,
-                borderBottom: "1px solid #e0e0e0",
-                backgroundColor: "#f8f9fa",
-              }}
-            >
-              <Typography variant="h6" sx={{ color: "#1976d2", fontWeight: "bold" }}>
-                検索結果 2
-              </Typography>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                API解析結果の2番目がここに表示されます
-              </Typography>
-            </Box>
-            
-            <Box
-              sx={{
-                flex: 1,
-                overflow: "auto",
-                p: 2,
-                backgroundColor: "#ffffff",
-              }}
-            >
-              {searchResults.length > 0 ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {searchResults.slice(Math.ceil(searchResults.length / 4), Math.ceil(searchResults.length / 2)).map((result) => (
-                    <Card 
-                      key={result.id} 
-                      sx={{ 
-                        border: "1px solid #e0e0e0",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                        "&:hover": {
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
-                          transform: "translateY(-1px)",
-                          transition: "all 0.2s ease-in-out"
-                        }
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 1, color: "#1976d2" }}>
-                          {result.title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1, color: "text.secondary" }}>
-                          {result.description}
-                        </Typography>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                            📍 {result.location}
-                          </Typography>
-                          <Typography variant="h6" sx={{ color: "#d32f2f", fontWeight: "bold" }}>
-                            {result.price}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px dashed #e0e0e0",
-                    borderRadius: 2,
-                    backgroundColor: "#fafafa",
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      color: "text.secondary",
-                      textAlign: "center",
-                    }}
-                  >
-                    API解析結果がここに表示されます
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-          </Box>
         </Box>
 
-        {/* 右側：APIレスポンス表示エリア */}
+        {/* 右側：解析結果表示エリア */}
         <Box
           sx={{
-            width: "50%",
+            width: "65%",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
@@ -355,47 +415,27 @@ const Home: React.FC = () => {
             }}
           >
             <Typography variant="h6" sx={{ color: "#1976d2", fontWeight: "bold" }}>
-              APIレスポンス表示エリア
+              物件解析結果
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              API解析の詳細な結果がここに表示されます
+              AI解析による詳細な物件情報
             </Typography>
           </Box>
           
-          {/* APIレスポンス表示 */}
           <Box
             sx={{
               flex: 1,
               overflow: "auto",
               p: 2,
-              backgroundColor: "#ffffff",
+              backgroundColor: "#f5f5f5",
             }}
           >
-            {apiResponse ? (
+            {apiResponse?.analysis ? (
               <Box>
-                <Typography variant="h6" sx={{ mb: 2, color: "#1976d2" }}>
-                  解析完了
-                </Typography>
-                <Box
-                  sx={{
-                    backgroundColor: "#f5f5f5",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 1,
-                    p: 2,
-                    maxHeight: "400px",
-                    overflow: "auto",
-                  }}
-                >
-                  <pre style={{ 
-                    margin: 0, 
-                    whiteSpace: "pre-wrap", 
-                    wordBreak: "break-word",
-                    fontSize: "12px",
-                    fontFamily: "monospace"
-                  }}>
-                    {JSON.stringify(apiResponse, null, 2)}
-                  </pre>
-                </Box>
+                <PropertyBasicInfo basicInfo={apiResponse.analysis.basic_info} />
+                <LocationInfo location={apiResponse.analysis.location} />
+                <FeatureInfo features={apiResponse.analysis.features} />
+                <EvaluationInfo evaluation={apiResponse.analysis.evaluation} />
               </Box>
             ) : (
               <Box
@@ -416,7 +456,7 @@ const Home: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  {loading ? "解析中..." : "API解析結果がここに表示されます"}
+                  {loading ? "解析中..." : "物件URLを入力して解析を開始してください"}
                 </Typography>
               </Box>
             )}
