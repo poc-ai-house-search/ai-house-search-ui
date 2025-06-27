@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -71,7 +71,7 @@ const App: React.FC = () => {
               {/* 他のルートもここに追加できます */}
             </Routes>
           </Box>
-          <Footer />
+          {/* <Footer /> */}
         </Box>
       </Router>
     </ThemeProvider>
