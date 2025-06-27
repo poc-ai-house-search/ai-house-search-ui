@@ -210,7 +210,7 @@ const Home: React.FC = () => {
                 <TableRow key={index}>
                   <TableCell>{station.line}</TableCell>
                   <TableCell>{station.station}</TableCell>
-                  <TableCell>{station.walking_time}分</TableCell>
+                  <TableCell>{station.walking_time}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
