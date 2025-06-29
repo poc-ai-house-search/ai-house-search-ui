@@ -324,27 +324,16 @@ const Home: React.FC = () => {
         </Typography>
 
         {/* 財政分析情報を追加 */}
-        {financialAnalysis && financialAnalysis.analysis_summary && (
+        {financialAnalysis && financialAnalysis.vertex_ai_search_summary && (
           <>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#1976d2" }}>
-              地域財政情報
+              地域財政分析
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2, p: 1.5, bgcolor: "#e3f2fd", borderRadius: 1, lineHeight: 1.6 }}>
-              {financialAnalysis.analysis_summary}
-            </Typography>
-            
-            {financialAnalysis.vertex_ai_search_summary && (
-              <>
-                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#1976d2" }}>
-                  詳細財政分析
-                </Typography>
-                <Box sx={{ mb: 2, p: 1.5, bgcolor: "#f3e5f5", borderRadius: 1, maxHeight: "200px", overflow: "auto" }}>
-                  <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: "pre-line" }}>
-                    {financialAnalysis.vertex_ai_search_summary}
-                  </Typography>
-                </Box>
-              </>
-            )}
+            <Box sx={{ mb: 2, p: 1.5, bgcolor: "#e3f2fd", borderRadius: 1, maxHeight: "300px", overflow: "auto" }}>
+              <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: "pre-line" }}>
+                {financialAnalysis.vertex_ai_search_summary}
+              </Typography>
+            </Box>
 
             {financialAnalysis.data_reliability && (
               <Box sx={{ mb: 2, p: 1, bgcolor: "warning.50", borderRadius: 1, border: "1px solid #ffcc02" }}>
