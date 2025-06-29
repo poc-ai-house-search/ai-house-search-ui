@@ -463,6 +463,45 @@ const Home: React.FC = () => {
               </Alert>
             )}
           </Box>
+
+          {/* 総合評価をここに表示 */}
+          <Box
+            sx={{
+              flex: 1,
+              overflow: "auto",
+              p: 2,
+              backgroundColor: "#f5f5f5",
+            }}
+          >
+            {apiResponse?.analysis ? (
+              <EvaluationInfo 
+                evaluation={apiResponse.analysis.evaluation}
+                financialAnalysis={apiResponse.analysis.financial_analysis}
+              />
+            ) : (
+              <Box
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "2px dashed #e0e0e0",
+                  borderRadius: 2,
+                  backgroundColor: "#fafafa",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    textAlign: "center",
+                  }}
+                >
+                  {loading ? "解析中..." : "総合評価がここに表示されます"}
+                </Typography>
+              </Box>
+            )}
+          </Box>
         </Box>
 
         {/* 右側：解析結果表示エリア */}
@@ -482,10 +521,10 @@ const Home: React.FC = () => {
             }}
           >
             <Typography variant="h6" sx={{ color: "#1976d2", fontWeight: "bold" }}>
-              物件解析結果
+              物件詳細情報
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              AI解析による詳細な物件情報
+              基本情報・アクセス・設備の詳細
             </Typography>
           </Box>
           
@@ -502,10 +541,6 @@ const Home: React.FC = () => {
                 <PropertyBasicInfo basicInfo={apiResponse.analysis.basic_info} />
                 <LocationInfo location={apiResponse.analysis.location} />
                 <FeatureInfo features={apiResponse.analysis.features} />
-                <EvaluationInfo 
-                  evaluation={apiResponse.analysis.evaluation}
-                  financialAnalysis={apiResponse.analysis.financial_analysis}
-                />
               </Box>
             ) : (
               <Box
