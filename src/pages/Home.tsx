@@ -68,6 +68,30 @@ interface Analysis {
     recommendation_score: string;
     summary: string;
   };
+  financial_analysis?: {
+    financial_status: string;
+    overall_score: number | null;
+    analysis_summary: string;
+    positive_factors: string[];
+    negative_factors: string[];
+    financial_indicators: {
+      revenue_total: string;
+      expenditure_total: string;
+      debt_ratio: string;
+    };
+    data_reliability: {
+      data_sources: number;
+      confidence_level: string;
+      search_successful: boolean;
+      vertex_ai_search_used: boolean;
+    };
+    vertex_ai_search_summary: string;
+    search_metadata: {
+      search_successful: boolean;
+      results_count: number;
+      api_type: string;
+    };
+  };
 }
 
 interface ApiResponse {
@@ -271,7 +295,10 @@ const Home: React.FC = () => {
   );
 
   // 総合評価コンポーネント
-  const EvaluationInfo = ({ evaluation }: { evaluation: Analysis['evaluation'] }) => (
+  const EvaluationInfo = ({ evaluation, financialAnalysis }: { 
+    evaluation: Analysis['evaluation'], 
+    financialAnalysis?: Analysis['financial_analysis'] 
+  }) => (
     <Card sx={{ mb: 3 }}>
       <CardContent>
         <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
@@ -290,11 +317,46 @@ const Home: React.FC = () => {
         </Box>
 
         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
-          総評
+          物件総評
         </Typography>
         <Typography variant="body2" sx={{ mb: 2, p: 1.5, bgcolor: "grey.50", borderRadius: 1, lineHeight: 1.6 }}>
           {evaluation.summary}
         </Typography>
+
+        {/* 財政分析情報を追加 */}
+        {financialAnalysis && financialAnalysis.analysis_summary && (
+          <>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#1976d2" }}>
+              地域財政情報
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, p: 1.5, bgcolor: "#e3f2fd", borderRadius: 1, lineHeight: 1.6 }}>
+              {financialAnalysis.analysis_summary}
+            </Typography>
+            
+            {financialAnalysis.vertex_ai_search_summary && (
+              <>
+                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#1976d2" }}>
+                  詳細財政分析
+                </Typography>
+                <Box sx={{ mb: 2, p: 1.5, bgcolor: "#f3e5f5", borderRadius: 1, maxHeight: "200px", overflow: "auto" }}>
+                  <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: "pre-line" }}>
+                    {financialAnalysis.vertex_ai_search_summary}
+                  </Typography>
+                </Box>
+              </>
+            )}
+
+            {financialAnalysis.data_reliability && (
+              <Box sx={{ mb: 2, p: 1, bgcolor: "warning.50", borderRadius: 1, border: "1px solid #ffcc02" }}>
+                <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                  データ信頼性: {financialAnalysis.data_reliability.confidence_level} | 
+                  データソース: {financialAnalysis.data_reliability.data_sources}件 | 
+                  AI検索: {financialAnalysis.data_reliability.vertex_ai_search_used ? "有効" : "無効"}
+                </Typography>
+              </Box>
+            )}
+          </>
+        )}
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
           <Box>
@@ -307,6 +369,14 @@ const Home: React.FC = () => {
                 <Typography key={index} variant="body2" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
                   <Box component="span" sx={{ color: "success.main", fontWeight: "bold", mt: 0.2 }}>✓</Box>
                   <Box>{advantage}</Box>
+                </Typography>
+              ))}
+              
+              {/* 財政分析のポジティブ要因も追加 */}
+              {financialAnalysis?.positive_factors?.map((factor, index) => (
+                <Typography key={`fin-pos-${index}`} variant="body2" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
+                  <Box component="span" sx={{ color: "success.main", fontWeight: "bold", mt: 0.2 }}>💰</Box>
+                  <Box>{factor}</Box>
                 </Typography>
               ))}
             </Box>
@@ -322,6 +392,14 @@ const Home: React.FC = () => {
                 <Typography key={index} variant="body2" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
                   <Box component="span" sx={{ color: "warning.main", fontWeight: "bold", mt: 0.2 }}>⚠</Box>
                   <Box>{disadvantage}</Box>
+                </Typography>
+              ))}
+              
+              {/* 財政分析のネガティブ要因も追加 */}
+              {financialAnalysis?.negative_factors?.map((factor, index) => (
+                <Typography key={`fin-neg-${index}`} variant="body2" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
+                  <Box component="span" sx={{ color: "warning.main", fontWeight: "bold", mt: 0.2 }}>💸</Box>
+                  <Box>{factor}</Box>
                 </Typography>
               ))}
             </Box>
@@ -435,7 +513,10 @@ const Home: React.FC = () => {
                 <PropertyBasicInfo basicInfo={apiResponse.analysis.basic_info} />
                 <LocationInfo location={apiResponse.analysis.location} />
                 <FeatureInfo features={apiResponse.analysis.features} />
-                <EvaluationInfo evaluation={apiResponse.analysis.evaluation} />
+                <EvaluationInfo 
+                  evaluation={apiResponse.analysis.evaluation}
+                  financialAnalysis={apiResponse.analysis.financial_analysis}
+                />
               </Box>
             ) : (
               <Box
