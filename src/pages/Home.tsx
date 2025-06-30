@@ -327,7 +327,7 @@ const Home: React.FC = () => {
         {financialAnalysis && financialAnalysis.vertex_ai_search_summary && (
           <>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "#1976d2" }}>
-              地域財政分析
+              地域情報分析
             </Typography>
             <Box sx={{ mb: 2, p: 1.5, bgcolor: "#e3f2fd", borderRadius: 1, maxHeight: "300px", overflow: "auto" }}>
               <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: "pre-line" }}>
