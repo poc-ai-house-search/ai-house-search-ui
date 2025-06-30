@@ -32,7 +32,7 @@ const Header: React.FC = () => (
         <MenuIcon />
       </IconButton>
       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-        AIハウス検索
+        次の住処
       </Typography>
       <Box sx={{ display: { xs: "none", md: "flex" } }}>
 
